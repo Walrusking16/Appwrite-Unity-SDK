@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Appwrite.Database
+namespace AppwriteSDK.Database
 {
 	public class Database
 	{

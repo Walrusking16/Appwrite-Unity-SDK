@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Appwrite
+namespace AppwriteSDK
 {
 	[CreateAssetMenu(fileName = "AppwriteSettings", menuName = "Appwrite/Settings", order = 1)]
 	public class AppwriteSettings : ScriptableObject

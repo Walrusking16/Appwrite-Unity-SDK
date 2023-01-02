@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Appwrite.Example
+namespace AppwriteSDK.Example
 {
 	public class TodoExample : MonoBehaviour
 	{

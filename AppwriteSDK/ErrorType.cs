@@ -1,4 +1,4 @@
-﻿namespace Appwrite
+﻿namespace AppwriteSDK
 {
 	public enum ErrorType
 	{
