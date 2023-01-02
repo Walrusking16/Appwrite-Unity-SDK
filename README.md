@@ -10,13 +10,16 @@ Appwrite features.
 
 ### Add the SDK to your project
 
+> **Note**
+> Currently not on asset store
+
 #### Using Unity Package Manager
 
 1. Open your project in Unity
 2. Open the Package Manager (Window > Package Manager)
 3. Click the "+" button in the top left corner
 4. Select "Add package from git URL..."
-5. Paste the following URL:
+5. Paste the following URL: https://github.com/Walrusking16/Appwrite-Unity-SDK?path=AppwriteSDK
 6. Click "Add"
 7. You're done!
 
