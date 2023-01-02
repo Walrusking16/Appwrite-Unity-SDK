@@ -1,0 +1,13 @@
+.todo-item {
+    flex-direction: row;
+}
+
+.todo-item Label {
+    font-size: 20px;
+    margin-right: 5px;
+}
+
+.todo-item Toggle {
+    width: 20px;
+    height: 20px;
+}

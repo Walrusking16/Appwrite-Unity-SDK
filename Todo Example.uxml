@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Todo%20Styles.uss?fileID=7433441132597879392&amp;guid=465981c18cfa7f044a89a7352e8170dc&amp;type=3#Todo Styles" />
+    <ui:VisualElement name="root" style="height: 100%; flex-direction: column; justify-content: center; align-items: center;">
+        <ui:Label text="Total: 0" display-tooltip-when-elided="true" name="total" style="font-size: 25px;" />
+        <ui:ScrollView name="todo-list" style="flex-grow: 1; flex-shrink: 0; width: 50%; flex-direction: column-reverse;">
+            <ui:VisualElement class="todo-item" style="height: 30px;">
+                <ui:Label text="Label" display-tooltip-when-elided="true" />
+                <ui:Toggle />
+            </ui:VisualElement>
+        </ui:ScrollView>
+    </ui:VisualElement>
+</ui:UXML>
