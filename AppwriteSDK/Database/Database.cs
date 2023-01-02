@@ -6,15 +6,28 @@ using UnityEngine.Networking;
 
 namespace AppwriteSDK.Database
 {
+	/// <summary>
+	///     Contains all the database methods
+	/// </summary>
 	public class Database
 	{
 		private Client _client;
 
+		/// <summary>
+		///     Creates an instance of the database
+		/// </summary>
+		/// <param name="client"></param>
 		public Database(Client client)
 		{
 			_client = client;
 		}
 
+		/// <summary>
+		///     Get a document by its unique ID
+		/// </summary>
+		/// <see href="https://appwrite.io/docs/client/databases?sdk=web-default#databasesGetDocument">Appwrite Documentation</see>
+		/// <include file="../comments.xml" path="Appwrite/CommonParams/*" />
+		/// <include file="../comments.xml" path="Appwrite/DocumentParam/*" />
 		public async Task<DatabaseResponse<T>> GetDocument<T>(string databaseId, string collectionId, string documentId)
 		{
 			var request = await _client.CreateGetRequest($"databases/{databaseId}/collections/{collectionId}/documents/{documentId}");
@@ -22,6 +35,12 @@ namespace AppwriteSDK.Database
 			return new DatabaseResponse<T>(request.GetText(), request.Result, request.Error);
 		}
 
+		/// <summary>
+		///     Get a list of all the user's documents in a given collection. You can use the query params to filter your
+		///     results
+		/// </summary>
+		/// <see href="https://appwrite.io/docs/client/databases?sdk=web-default#databasesListDocuments">Appwrite Documentation</see>
+		/// <include file="../comments.xml" path="Appwrite/CommonParams/*" />
 		public async Task<DatabaseResponseList<T>> ListDocuments<T>(string databaseId, string collectionId)
 		{
 			var request = await _client.CreateGetRequest($"databases/{databaseId}/collections/{collectionId}/documents");
@@ -29,6 +48,12 @@ namespace AppwriteSDK.Database
 			return new DatabaseResponseList<T>(request.GetText(), request.Result, request.Error);
 		}
 
+		/// <summary>
+		///     Update a document by its unique ID. Using the patch method you can pass only specific fields that will get updated
+		/// </summary>
+		/// <see href="https://appwrite.io/docs/client/databases?sdk=web-default#databasesUpdateDocument">Appwrite Documentation</see>
+		/// <include file="../comments.xml" path="Appwrite/CommonParams/*" />
+		/// <include file="../comments.xml" path="Appwrite/DocumentParam/*" />
 		public async Task<DatabaseResponse<T>> UpdateDocument<T>(string databaseId, string collectionId, string documentId,
 			Dictionary<string, object> data)
 		{

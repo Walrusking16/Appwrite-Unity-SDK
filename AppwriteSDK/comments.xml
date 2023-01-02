@@ -1,0 +1,9 @@
+﻿<Appwrite>
+    <CommonParams>
+        <param name="databaseId">Database ID</param>
+        <param name="collectionId">Collection ID</param>
+    </CommonParams>
+    <DocumentParam>
+        <param name="documentId">Document ID</param>
+    </DocumentParam>
+</Appwrite>

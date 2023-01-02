@@ -11,10 +11,14 @@ namespace AppwriteSDK.Example
 
 		[SerializeField] private AppwriteSettings clientSettings;
 
+		private Client client;
+		private Label totalLabel;
+
 		private async void Start()
 		{
-			var client = new Client(clientSettings.endpoint, clientSettings.projectID, clientSettings.key);
+			client = new Client(clientSettings.endpoint, clientSettings.projectID, clientSettings.key);
 
+			// Get all todo items
 			var response = await client.Database.ListDocuments<Todo>("game", "items");
 
 			if (!response.Success)
@@ -31,51 +35,51 @@ namespace AppwriteSDK.Example
 
 			var root = document.rootVisualElement;
 
-			root.Q<Label>("total").text = $"Total: {data.total}";
+			totalLabel = root.Q<Label>("total");
+
+			UpdateTotal(data.total);
 
 			if (data.total == 0) return;
 
-			var elem = new VisualElement
-			{
-				style =
-				{
-					flexDirection = FlexDirection.Column,
-					paddingBottom = 10
-				}
-			};
+			var todoItem = new VisualElement();
 
 			foreach (var todo in data.documents)
 			{
-				var todoElem = new VisualElement
-				{
-					style =
-					{
-						flexDirection = FlexDirection.Row
-					}
-				};
-				todoElem.Add(new Label
-				{
-					text = todo.title, style =
-					{
-						paddingRight = 5
-					}
-				});
-
-				var toggle = new Toggle { value = todo.completed };
-
-				toggle.RegisterValueChangedCallback(async evt =>
-				{
-					var form = new Dictionary<string, object> { { "completed", evt.newValue } };
-					var res = await client.Database.UpdateDocument<Todo>("game", "items", todo._id, form);
-
-					Debug.Log(res.Success ? res.Data.completed : res.Status.message);
-				});
-
-				todoElem.Add(toggle);
-				elem.Add(todoElem);
+				CreateTodoItem(todo, out var elem);
+				todoItem.Add(elem);
 			}
 
-			root.Q<ScrollView>().Add(elem);
+			root.Q<ScrollView>().Add(todoItem);
+		}
+
+		private void UpdateTotal(int total)
+		{
+			totalLabel.text = $"Total: {total}";
+		}
+
+		private void CreateTodoItem(Todo todo, out VisualElement elem)
+		{
+			elem = new VisualElement();
+			elem.AddToClassList("todo-item");
+
+			elem.Add(new Label
+			{
+				text = todo.title
+			});
+
+			var toggle = new Toggle { value = todo.completed };
+
+			toggle.RegisterValueChangedCallback(evt => OnToggleValueChanged(evt, todo));
+
+			elem.Add(toggle);
+		}
+
+		private async void OnToggleValueChanged(ChangeEvent<bool> evt, Todo todo)
+		{
+			var form = new Dictionary<string, object> { { "completed", evt.newValue } };
+			var res = await client.Database.UpdateDocument<Todo>("game", "items", todo._id, form);
+
+			Debug.Log(res.Success ? res.Data.completed : res.Status.message);
 		}
 
 		[Serializable]

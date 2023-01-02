@@ -7,27 +7,53 @@ namespace AppwriteSDK
 	{
 		private string _endpoint;
 		private string _project;
+
 		public Database.Database Database;
+
 		private Dictionary<string, string> headers;
 
+		/// <summary>
+		///     Create an instance of the client
+		/// </summary>
+		/// <param name="endpoint"></param>
+		/// <param name="project"></param>
 		public Client(string endpoint, string project)
 		{
 			Setup(endpoint, project);
 		}
 
+		/// <summary>
+		///     Create an instance of the client that has an api key
+		/// </summary>
+		/// <param name="endpoint"></param>
+		/// <param name="project"></param>
+		/// <param name="key"></param>
 		public Client(string endpoint, string project, string key)
 		{
 			Setup(endpoint, project);
 			headers.Add("x-appwrite-key", key);
 		}
 
+		/// <summary>
+		///     Current version of the SDK
+		/// </summary>
 		public string Version => "0.0.1";
 
+		/// <summary>
+		///     Creates a standard GET request
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
 		public async Task<Request> CreateGetRequest(string path)
 		{
 			return await StartRequest(CreateRequest(path, Request.RequestMethod.GET));
 		}
 
+		/// <summary>
+		///     Creates a standard PATCH request
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
 		public async Task<Request> CreatePatchRequest(string path, Dictionary<string, object> data)
 		{
 			return await StartRequest(CreateRequest(path, Request.RequestMethod.PATCH, data));
@@ -44,6 +70,7 @@ namespace AppwriteSDK
 			return request;
 		}
 
+		//TODO: Settings that include built in logging that has options for disabled, error, info
 		private Request CreateRequest(string path, Request.RequestMethod method, Dictionary<string, object> data = null)
 		{
 			var request = new Request($"{_endpoint}/{path}", method, data);

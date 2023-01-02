@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -8,14 +9,47 @@ namespace AppwriteSDK
 {
 	public class ResponseStatus
 	{
+		/// <summary>
+		///     Response code
+		/// </summary>
+		/// <see href="https://appwrite.io/docs/response-codes">Appwrite Documentation</see>
 		public int code;
+
+		/// <summary>
+		///     Error message
+		/// </summary>
 		public string message;
+
+		/// <summary>
+		///     ErrorType
+		/// </summary>
+		/// <see href="https://appwrite.io/docs/response-codes#errorTypes">Appwrite Documentation</see>
 		public string type;
+
+		/// <summary>
+		///     Appwrite Version
+		/// </summary>
 		public string version;
+
+		/// <summary>
+		///     Converts the "type" to an enum
+		/// </summary>
+		/// <see cref="AppwriteSDK.ResponseStatus.type" />
+		public ErrorType ErrorType => GetErrorType();
+
+		private ErrorType GetErrorType()
+		{
+			var errorType = type.Replace("_", "");
+
+			return (ErrorType)Enum.Parse(typeof(ErrorType), errorType);
+		}
 	}
 
 	public class Request
 	{
+		/// <summary>
+		///     HTTP Method
+		/// </summary>
 		public enum RequestMethod
 		{
 			GET,

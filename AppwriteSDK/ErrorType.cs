@@ -1,5 +1,9 @@
 ﻿namespace AppwriteSDK
 {
+	/// <summary>
+	///     Error types that appwrite can return
+	/// </summary>
+	/// <see href="https://appwrite.io/docs/response-codes#errorTypes">Appwrite Documentation</see>
 	public enum ErrorType
 	{
 		GeneralMock,
@@ -86,6 +90,3 @@
 		TeamInviteAlreadyExists
 	}
 }
-
-// Using javascript get only the second value for every item in a html table
-// and add it to a list
