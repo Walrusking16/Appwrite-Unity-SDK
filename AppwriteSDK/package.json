@@ -1,5 +1,5 @@
 ﻿{
-  "name": "com.walrusking16.appwritesdk",
+  "name": "com.walrusking.appwritesdk",
   "displayName": "AppwriteSDK",
   "version": "0.0.1",
   "unity": "2021.3",
@@ -9,5 +9,8 @@
     "Networking",
     "Utils"
   ],
-  "dependencies": {}
+  "author": {
+    "name": "Walrusking",
+    "url": "https://walrushq.com"
+  }
 }
