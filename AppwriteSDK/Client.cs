@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace AppwriteSDK
@@ -15,29 +16,38 @@ namespace AppwriteSDK
 		/// <summary>
 		///     Create an instance of the client
 		/// </summary>
-		/// <param name="endpoint"></param>
-		/// <param name="project"></param>
-		public Client(string endpoint, string project)
+		/// <include file="./comments.xml" path='Appwrite/CommonClientParams/*' />
+		public Client(string endpoint, string projectId)
 		{
-			Setup(endpoint, project);
+			Setup(endpoint, projectId);
+		}
+
+		/// <summary>
+		///     Create an instance of the client
+		/// </summary>
+		public Client(AppwriteSettings settings)
+		{
+			Setup(settings.endpoint, settings.projectID);
+
+			if (!string.IsNullOrEmpty(settings.key))
+				AddKey(settings.key);
 		}
 
 		/// <summary>
 		///     Create an instance of the client that has an api key
 		/// </summary>
-		/// <param name="endpoint"></param>
-		/// <param name="project"></param>
-		/// <param name="key"></param>
-		public Client(string endpoint, string project, string key)
+		/// <include file="./comments.xml" path='Appwrite/CommonClientParams/*' />
+		/// <param name="apiKey">The api key to access the endpoint</param>
+		public Client(string endpoint, string projectId, string apiKey)
 		{
-			Setup(endpoint, project);
-			headers.Add("x-appwrite-key", key);
+			Setup(endpoint, projectId);
+			AddKey(apiKey);
 		}
 
 		/// <summary>
 		///     Current version of the SDK
 		/// </summary>
-		public string Version => "0.0.1";
+		public string Version => "0.0.8";
 
 		/// <summary>
 		///     Creates a standard GET request
@@ -59,6 +69,33 @@ namespace AppwriteSDK
 			return await StartRequest(CreateRequest(path, Request.RequestMethod.PATCH, data));
 		}
 
+		/// <summary>
+		///     Creates a standard POST request
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public async Task<Request> CreatePostRequest(string path, Dictionary<string, object> data)
+		{
+			return await StartRequest(CreateRequest(path, Request.RequestMethod.POST, data));
+		}
+
+		/// <inheritdoc cref="AppwriteSDK.Client.CreatePostRequest(string, Dictionary{string, object})" />
+		public async Task<Request> CreatePostRequest(string path, string data)
+		{
+			return await StartRequest(CreateRequest(path, Request.RequestMethod.POST, data));
+		}
+
+		public async Task<Request> CreateDeleteRequest(string path)
+		{
+			return await StartRequest(CreateRequest(path, Request.RequestMethod.DELETE));
+		}
+
+		private void AddKey(string key)
+		{
+			headers.Add("x-appwrite-key", key);
+		}
+
 		private async Task<Request> StartRequest(Request request)
 		{
 			request.Start();
@@ -71,9 +108,18 @@ namespace AppwriteSDK
 		}
 
 		//TODO: Settings that include built in logging that has options for disabled, error, info
-		private Request CreateRequest(string path, Request.RequestMethod method, Dictionary<string, object> data = null)
+		private Request CreateRequest(string path, Request.RequestMethod method, Dictionary<string, object> data)
 		{
-			var request = new Request($"{_endpoint}/{path}", method, data);
+			return CreateRequest(path, method, Request.FormToJson(data));
+		}
+
+		private Request CreateRequest(string path, Request.RequestMethod method, string data = null)
+		{
+			var url = $"{_endpoint}/{path}";
+
+			var request = data == null
+				? new Request(url, method)
+				: new Request(url, method, new UTF8Encoding().GetBytes(data));
 
 			foreach (var header in headers) request.SetHeader(header.Key, header.Value);
 

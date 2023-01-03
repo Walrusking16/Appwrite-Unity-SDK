@@ -1,7 +1,7 @@
 ﻿{
   "name": "com.walrusking.appwritesdk",
   "displayName": "AppwriteSDK",
-  "version": "0.0.1",
+  "version": "0.0.8",
   "unity": "2021.3",
   "description": "Appwrite SDK for Unity",
   "license": "MIT",

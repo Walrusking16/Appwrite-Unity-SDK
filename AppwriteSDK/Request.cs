@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using UnityEngine;
+using System.Text.RegularExpressions;
 using UnityEngine.Networking;
 
 namespace AppwriteSDK
@@ -70,6 +69,7 @@ namespace AppwriteSDK
 			"$databaseId"
 		};
 
+
 		public string Error;
 
 		public string ResponseText;
@@ -77,21 +77,27 @@ namespace AppwriteSDK
 
 		private UnityWebRequest webRequest;
 
-		public Request(string url, RequestMethod method, Dictionary<string, object> data = null)
+		public Request(string url, RequestMethod method)
 		{
-			webRequest = new UnityWebRequest(url, GetMethod(method));
-			webRequest.timeout = 60;
-			if (data != null)
-			{
-				Debug.Log(FormToJson(data));
-				var encodedPayload = new UTF8Encoding().GetBytes(FormToJson(data));
-				webRequest.uploadHandler = new UploadHandlerRaw(encodedPayload);
-			}
+			Setup(url, method);
+		}
 
+		public Request(string url, RequestMethod method, byte[] data)
+		{
+			Setup(url, method);
+
+			webRequest.uploadHandler = new UploadHandlerRaw(data);
 			webRequest.downloadHandler = new DownloadHandlerBuffer();
 		}
 
 		public bool IsDone => webRequest.isDone;
+
+		private void Setup(string url, RequestMethod method)
+		{
+			webRequest = new UnityWebRequest(url, GetMethod(method));
+			webRequest.timeout = 60;
+			webRequest.downloadHandler = new DownloadHandlerBuffer();
+		}
 
 		public void Dispose()
 		{
@@ -102,9 +108,9 @@ namespace AppwriteSDK
 			webRequest.Dispose();
 		}
 
-		private string FormToJson(Dictionary<string, object> data)
+		public static string FormToJson(Dictionary<string, object> data)
 		{
-			var json = "{ \"data\": {";
+			var json = "";
 
 			var num = 0;
 			foreach (var kv in data)
@@ -117,10 +123,30 @@ namespace AppwriteSDK
 				num++;
 			}
 
-			return $"{json}}}";
+			return WrapJson(json);
 		}
 
-		private string ParseValue(object value)
+		private static string WrapJson(string data, string json = "")
+		{
+			var _json = string.IsNullOrEmpty(json) ? "" : $", {json}";
+			return $"{{ \"data\": {{ {data}{_json} }}";
+		}
+
+		public static string CreateObject(string documentId, string data)
+		{
+			data = RemoveAppwriteKeys(data);
+			var json = $"\"documentId\": \"{documentId}\"";
+
+			return WrapJson(data, json);
+		}
+
+		public static string RemoveAppwriteKeys(string json)
+		{
+			var regex = new Regex("\"_(id|collectionId|databaseId|createdAt|updatedAt|permissions)\":[\"|\\[|\\]]{2},");
+			return regex.Replace(json, "").TrimStart('{');
+		}
+
+		private static string ParseValue(object value)
 		{
 			return value switch
 			{

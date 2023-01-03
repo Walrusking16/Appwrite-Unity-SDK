@@ -22,6 +22,16 @@ namespace AppwriteSDK.Database
 			_client = client;
 		}
 
+		private string BuildUrl(string databaseId, string collectionId)
+		{
+			return $"databases/{databaseId}/collections/{collectionId}/documents";
+		}
+
+		private string BuildUrl(string databaseId, string collectionId, string documentId)
+		{
+			return $"{BuildUrl(databaseId, collectionId)}/{documentId}";
+		}
+
 		/// <summary>
 		///     Get a document by its unique ID
 		/// </summary>
@@ -30,7 +40,7 @@ namespace AppwriteSDK.Database
 		/// <include file="../comments.xml" path="Appwrite/DocumentParam/*" />
 		public async Task<DatabaseResponse<T>> GetDocument<T>(string databaseId, string collectionId, string documentId)
 		{
-			var request = await _client.CreateGetRequest($"databases/{databaseId}/collections/{collectionId}/documents/{documentId}");
+			var request = await _client.CreateGetRequest(BuildUrl(databaseId, collectionId, documentId));
 
 			return new DatabaseResponse<T>(request.GetText(), request.Result, request.Error);
 		}
@@ -41,9 +51,10 @@ namespace AppwriteSDK.Database
 		/// </summary>
 		/// <see href="https://appwrite.io/docs/client/databases?sdk=web-default#databasesListDocuments">Appwrite Documentation</see>
 		/// <include file="../comments.xml" path="Appwrite/CommonParams/*" />
+		// TODO: Support filters
 		public async Task<DatabaseResponseList<T>> ListDocuments<T>(string databaseId, string collectionId)
 		{
-			var request = await _client.CreateGetRequest($"databases/{databaseId}/collections/{collectionId}/documents");
+			var request = await _client.CreateGetRequest(BuildUrl(databaseId, collectionId));
 
 			return new DatabaseResponseList<T>(request.GetText(), request.Result, request.Error);
 		}
@@ -54,16 +65,37 @@ namespace AppwriteSDK.Database
 		/// <see href="https://appwrite.io/docs/client/databases?sdk=web-default#databasesUpdateDocument">Appwrite Documentation</see>
 		/// <include file="../comments.xml" path="Appwrite/CommonParams/*" />
 		/// <include file="../comments.xml" path="Appwrite/DocumentParam/*" />
+		// TODO: Support permissions
 		public async Task<DatabaseResponse<T>> UpdateDocument<T>(string databaseId, string collectionId, string documentId,
 			Dictionary<string, object> data)
 		{
-			var request = await _client.CreatePatchRequest($"databases/{databaseId}/collections/{collectionId}/documents/{documentId}",
-				data);
+			var request = await _client.CreatePatchRequest(BuildUrl(databaseId, collectionId, documentId), data);
 
 			return new DatabaseResponse<T>(request.GetText(), request.Result, request.Error);
 		}
 
-		public class DatabaseResponseList<T> : BaseResponse<T>
+		/// <summary>
+		///     Create a new Document
+		/// </summary>
+		/// <see href="https://appwrite.io/docs/client/databases?sdk=web-default#databasesCreateDocument">Appwrite Documentation</see>
+		/// <include file="../comments.xml" path="Appwrite/CommonParams/*" />
+		public async Task<DatabaseResponse<T>> CreateDocument<T>(string databaseId, string collectionId, string documentId,
+			T data)
+		{
+			var jsonData = JsonUtility.ToJson(data);
+			var request = await _client.CreatePostRequest(BuildUrl(databaseId, collectionId), Request.CreateObject(documentId, jsonData));
+
+			return new DatabaseResponse<T>(request.GetText(), request.Result, request.Error);
+		}
+
+		public async Task<BaseResponse> DeleteDocument(string databaseId, string collectionId, string documentId)
+		{
+			var request = await _client.CreateDeleteRequest(BuildUrl(databaseId, collectionId, documentId));
+
+			return new BaseResponse(request.GetText(), request.Result, request.Error);
+		}
+
+		public class DatabaseResponseList<T> : BaseResponse
 		{
 			public ListResponse<T> Data;
 
@@ -73,7 +105,7 @@ namespace AppwriteSDK.Database
 			}
 		}
 
-		public class DatabaseResponse<T> : BaseResponse<T>
+		public class DatabaseResponse<T> : BaseResponse
 		{
 			public readonly T Data;
 
@@ -90,7 +122,7 @@ namespace AppwriteSDK.Database
 			public int total;
 		}
 
-		public class BaseResponse<T>
+		public class BaseResponse
 		{
 			public readonly UnityWebRequest.Result Result;
 			public readonly ResponseStatus Status;

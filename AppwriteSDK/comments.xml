@@ -6,4 +6,8 @@
     <DocumentParam>
         <param name="documentId">Document ID</param>
     </DocumentParam>
+    <CommonClientParams>
+        <param name="endpoint">The endpoint to your appwrite instance</param>
+        <param name="projectId">The project id</param>
+    </CommonClientParams>
 </Appwrite>

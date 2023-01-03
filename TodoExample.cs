@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AppwriteSDK.Database;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -12,11 +13,13 @@ namespace AppwriteSDK.Example
 		[SerializeField] private AppwriteSettings clientSettings;
 
 		private Client client;
+		private ScrollView todoList;
+		private int totalItems;
 		private Label totalLabel;
 
 		private async void Start()
 		{
-			client = new Client(clientSettings.endpoint, clientSettings.projectID, clientSettings.key);
+			client = new Client(clientSettings);
 
 			// Get all todo items
 			var response = await client.Database.ListDocuments<Todo>("game", "items");
@@ -36,31 +39,51 @@ namespace AppwriteSDK.Example
 			var root = document.rootVisualElement;
 
 			totalLabel = root.Q<Label>("total");
+			todoList = root.Q<ScrollView>();
+
+			root.Q<Button>("new-item").clicked += async () =>
+			{
+				var newItem = new Todo
+				{
+					title = "New Item",
+					completed = true
+				};
+				var res = await client.Database.CreateDocument("game", "items", ID.Unique, newItem);
+
+				if (!res.Success)
+				{
+					Debug.LogError($"Appwrite: {res.Status.message}");
+					Debug.Log($"Code: {res.Status.code}");
+					Debug.Log($"Type: {res.Status.type}");
+					Debug.Log($"Appwrite Version: {res.Status.version}");
+
+					return;
+				}
+
+				newItem = res.Data;
+
+				CreateTodoItem(newItem);
+				UpdateTotal(totalItems + 1);
+			};
 
 			UpdateTotal(data.total);
 
 			if (data.total == 0) return;
 
-			var todoItem = new VisualElement();
-
-			foreach (var todo in data.documents)
-			{
-				CreateTodoItem(todo, out var elem);
-				todoItem.Add(elem);
-			}
-
-			root.Q<ScrollView>().Add(todoItem);
+			foreach (var todo in data.documents) CreateTodoItem(todo);
 		}
 
 		private void UpdateTotal(int total)
 		{
+			totalItems = total;
 			totalLabel.text = $"Total: {total}";
 		}
 
-		private void CreateTodoItem(Todo todo, out VisualElement elem)
+		private void CreateTodoItem(Todo todo)
 		{
-			elem = new VisualElement();
+			var elem = new VisualElement { name = todo._id };
 			elem.AddToClassList("todo-item");
+			elem.EnableInClassList("active", todo.completed);
 
 			elem.Add(new Label
 			{
@@ -72,14 +95,46 @@ namespace AppwriteSDK.Example
 			toggle.RegisterValueChangedCallback(evt => OnToggleValueChanged(evt, todo));
 
 			elem.Add(toggle);
+
+			var deleteButton = new Button { text = "Delete" };
+			deleteButton.clicked += () => OnDeleteButtonClicked(todo);
+			elem.Add(deleteButton);
+
+			todoList.Add(elem);
 		}
 
 		private async void OnToggleValueChanged(ChangeEvent<bool> evt, Todo todo)
 		{
+			document.rootVisualElement.Q<VisualElement>(todo._id).EnableInClassList("active", evt.newValue);
 			var form = new Dictionary<string, object> { { "completed", evt.newValue } };
 			var res = await client.Database.UpdateDocument<Todo>("game", "items", todo._id, form);
 
 			Debug.Log(res.Success ? res.Data.completed : res.Status.message);
+		}
+
+		private async void OnDeleteButtonClicked(Todo todo)
+		{
+			var res = await client.Database.DeleteDocument("game", "items", todo._id);
+
+			if (!res.Success)
+			{
+				Debug.LogError($"Appwrite: {res.Status.message}");
+				Debug.Log($"Code: {res.Status.code}");
+				Debug.Log($"Type: {res.Status.type}");
+				Debug.Log($"Appwrite Version: {res.Status.version}");
+
+				return;
+			}
+
+			todoList.Q<VisualElement>(todo._id).RemoveFromHierarchy();
+			UpdateTotal(totalItems - 1);
+		}
+
+		[Serializable]
+		public struct TodoItem
+		{
+			public bool completed;
+			public string title;
 		}
 
 		[Serializable]
@@ -87,28 +142,6 @@ namespace AppwriteSDK.Example
 		{
 			public bool completed;
 			public string title;
-		}
-
-		[Serializable]
-		public class BaseDatabaseResponse
-		{
-			public string _id, _collectionId, _databaseId, _createdAt, _updatedAt;
-			public List<string> _permissions;
-
-			public DateTime CreatedAt => ParseDate(_createdAt);
-			public DateTime UpdatedAt => ParseDate(_updatedAt);
-
-			private DateTime ParseDate(string date)
-			{
-				return string.IsNullOrWhiteSpace(date) ? DateTime.Now : DateTime.Parse(date);
-			}
-		}
-
-		[Serializable]
-		public class BaseDatabaseRequest<T>
-		{
-			public List<string> permissions;
-			public T data;
 		}
 	}
 }
