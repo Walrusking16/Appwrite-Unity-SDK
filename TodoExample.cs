@@ -41,6 +41,7 @@ namespace AppwriteSDK.Example
 			totalLabel = root.Q<Label>("total");
 			todoList = root.Q<ScrollView>();
 
+			// Create a new item when the button is clicked
 			root.Q<Button>("new-item").clicked += async () =>
 			{
 				var newItem = new Todo
@@ -48,6 +49,8 @@ namespace AppwriteSDK.Example
 					title = "New Item",
 					completed = true
 				};
+
+				// Create the document on the server
 				var res = await client.Database.CreateDocument("game", "items", ID.Unique, newItem);
 
 				if (!res.Success)
@@ -62,6 +65,7 @@ namespace AppwriteSDK.Example
 
 				newItem = res.Data;
 
+				// Create the todo item in the UI and update the count
 				CreateTodoItem(newItem);
 				UpdateTotal(totalItems + 1);
 			};
@@ -70,6 +74,7 @@ namespace AppwriteSDK.Example
 
 			if (data.total == 0) return;
 
+			// Create all the items in the UI
 			foreach (var todo in data.documents) CreateTodoItem(todo);
 		}
 
@@ -106,6 +111,8 @@ namespace AppwriteSDK.Example
 		private async void OnToggleValueChanged(ChangeEvent<bool> evt, Todo todo)
 		{
 			document.rootVisualElement.Q<VisualElement>(todo._id).EnableInClassList("active", evt.newValue);
+
+			// Update the todo item on the server
 			var form = new Dictionary<string, object> { { "completed", evt.newValue } };
 			var res = await client.Database.UpdateDocument<Todo>("game", "items", todo._id, form);
 
@@ -114,6 +121,7 @@ namespace AppwriteSDK.Example
 
 		private async void OnDeleteButtonClicked(Todo todo)
 		{
+			// Delete the todo item on the server
 			var res = await client.Database.DeleteDocument("game", "items", todo._id);
 
 			if (!res.Success)
@@ -126,15 +134,9 @@ namespace AppwriteSDK.Example
 				return;
 			}
 
+			// Remove the todo item from the UI and update the count
 			todoList.Q<VisualElement>(todo._id).RemoveFromHierarchy();
 			UpdateTotal(totalItems - 1);
-		}
-
-		[Serializable]
-		public struct TodoItem
-		{
-			public bool completed;
-			public string title;
 		}
 
 		[Serializable]
