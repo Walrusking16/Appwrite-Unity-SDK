@@ -52,9 +52,9 @@ namespace AppwriteSDK.Database
 		/// <see href="https://appwrite.io/docs/client/databases?sdk=web-default#databasesListDocuments">Appwrite Documentation</see>
 		/// <include file="../comments.xml" path="Appwrite/CommonParams/*" />
 		// TODO: Support filters
-		public async Task<DatabaseResponseList<T>> ListDocuments<T>(string databaseId, string collectionId)
+		public async Task<DatabaseResponseList<T>> ListDocuments<T>(string databaseId, string collectionId, string[] queries = null)
 		{
-			var request = await _client.CreateGetRequest(BuildUrl(databaseId, collectionId));
+			var request = await _client.CreateGetRequest(BuildUrl(databaseId, collectionId), queries);
 
 			return new DatabaseResponseList<T>(request.GetText(), request.Result, request.Error);
 		}

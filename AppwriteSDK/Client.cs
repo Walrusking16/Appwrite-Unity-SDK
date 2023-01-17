@@ -47,16 +47,17 @@ namespace AppwriteSDK
 		/// <summary>
 		///     Current version of the SDK
 		/// </summary>
-		public string Version => "0.0.9";
+		public string Version => "0.1.0";
 
 		/// <summary>
 		///     Creates a standard GET request
 		/// </summary>
 		/// <param name="path"></param>
+		/// <param name="queries"></param>
 		/// <returns></returns>
-		public async Task<Request> CreateGetRequest(string path)
+		public async Task<Request> CreateGetRequest(string path, string[] queries = null)
 		{
-			return await StartRequest(CreateRequest(path, Request.RequestMethod.GET));
+			return await StartRequest(CreateRequest(path, Request.RequestMethod.GET, "", queries));
 		}
 
 		/// <summary>
@@ -108,16 +109,27 @@ namespace AppwriteSDK
 		}
 
 		//TODO: Settings that include built in logging that has options for disabled, error, info
-		private Request CreateRequest(string path, Request.RequestMethod method, Dictionary<string, object> data)
+		private Request CreateRequest(string path, Request.RequestMethod method, Dictionary<string, object> data, string[] queries = null)
 		{
-			return CreateRequest(path, method, Request.FormToJson(data));
+			return CreateRequest(path, method, Request.FormToJson(data), queries);
 		}
 
-		private Request CreateRequest(string path, Request.RequestMethod method, string data = null)
+		private Request CreateRequest(string path, Request.RequestMethod method, string data = null, string[] queries = null)
 		{
 			var url = $"{_endpoint}/{path}";
 
-			var request = data == null
+			if (queries != null)
+			{
+				url += "?";
+				for (var i = 0; i < queries.Length; i++)
+				{
+					url += $"queries[{i}]={queries[i]}";
+					if (i != queries.Length - 1)
+						url += "&";
+				}
+			}
+
+			var request = string.IsNullOrEmpty(data)
 				? new Request(url, method)
 				: new Request(url, method, new UTF8Encoding().GetBytes(data));
 
