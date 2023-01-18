@@ -123,21 +123,83 @@ namespace AppwriteSDK
 				num++;
 			}
 
-			return WrapJson(json);
+			return json;
 		}
 
-		private static string WrapJson(string data, string json = "")
+		public static string KeyValueToJson(KeyValuePair<string, object>[] data)
 		{
-			var _json = string.IsNullOrEmpty(json) ? "" : $", {json}";
-			return $"{{ \"data\": {{ {data}{_json} }}";
+			var json = "";
+
+			var num = 0;
+			foreach (var kv in data)
+			{
+				json += $"\"{kv.Key}\": {ParseValue(kv.Value)}";
+
+				if (data.Length - 1 < num) json += ",";
+				else json += "}";
+
+				num++;
+			}
+
+			return json;
 		}
 
-		public static string CreateObject(string documentId, string data)
+		public static string ObjectToJson(object data)
+		{
+			var json = "";
+
+			var num = 0;
+			foreach (var kv in data.GetType().GetProperties())
+			{
+				json += $"\"{kv.Name}\": {ParseValue(kv.GetValue(data))}";
+
+				if (data.GetType().GetProperties().Length - 1 < num) json += ",";
+				else json += "}";
+
+				num++;
+			}
+
+			return json;
+		}
+
+		private static string WrapJson(IEnumerable<KeyValuePair<string, string>> data)
+		{
+			var formattedJson = "{";
+
+			data.ToList().ForEach(kv => formattedJson += $"\"{kv.Key}\": {kv.Value},");
+
+			formattedJson = formattedJson.TrimEnd(',');
+
+			formattedJson += "}";
+
+			return formattedJson;
+		}
+
+		public static string CreateObject(string documentId, string data, string permissions)
 		{
 			data = RemoveAppwriteKeys(data);
-			var json = $"\"documentId\": \"{documentId}\"";
 
-			return WrapJson(data, json);
+			var objects = new KeyValuePair<string, string>[]
+			{
+				new("data", $"{{{data}"),
+				new("documentId", $"\"{documentId}\""),
+				new("permissions", permissions)
+			};
+
+			return WrapJson(objects);
+		}
+
+		public static string UpdateObject(string data, string permissions)
+		{
+			data = RemoveAppwriteKeys(data);
+
+			var objects = new KeyValuePair<string, string>[]
+			{
+				new("data", $"{{{data}"),
+				new("permissions", permissions)
+			};
+
+			return WrapJson(objects);
 		}
 
 		public static string RemoveAppwriteKeys(string json)

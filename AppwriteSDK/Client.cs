@@ -47,7 +47,7 @@ namespace AppwriteSDK
 		/// <summary>
 		///     Current version of the SDK
 		/// </summary>
-		public string Version => "0.1.0";
+		public string Version => "0.1.1";
 
 		/// <summary>
 		///     Creates a standard GET request
@@ -64,8 +64,9 @@ namespace AppwriteSDK
 		///     Creates a standard PATCH request
 		/// </summary>
 		/// <param name="path"></param>
+		/// <param name="data"></param>
 		/// <returns></returns>
-		public async Task<Request> CreatePatchRequest(string path, Dictionary<string, object> data)
+		public async Task<Request> CreatePatchRequest(string path, string data)
 		{
 			return await StartRequest(CreateRequest(path, Request.RequestMethod.PATCH, data));
 		}

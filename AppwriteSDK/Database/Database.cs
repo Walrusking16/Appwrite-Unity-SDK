@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -51,7 +52,6 @@ namespace AppwriteSDK.Database
 		/// </summary>
 		/// <see href="https://appwrite.io/docs/client/databases?sdk=web-default#databasesListDocuments">Appwrite Documentation</see>
 		/// <include file="../comments.xml" path="Appwrite/CommonParams/*" />
-		// TODO: Support filters
 		public async Task<DatabaseResponseList<T>> ListDocuments<T>(string databaseId, string collectionId, string[] queries = null)
 		{
 			var request = await _client.CreateGetRequest(BuildUrl(databaseId, collectionId), queries);
@@ -65,11 +65,47 @@ namespace AppwriteSDK.Database
 		/// <see href="https://appwrite.io/docs/client/databases?sdk=web-default#databasesUpdateDocument">Appwrite Documentation</see>
 		/// <include file="../comments.xml" path="Appwrite/CommonParams/*" />
 		/// <include file="../comments.xml" path="Appwrite/DocumentParam/*" />
-		// TODO: Support permissions
 		public async Task<DatabaseResponse<T>> UpdateDocument<T>(string databaseId, string collectionId, string documentId,
-			Dictionary<string, object> data)
+			Dictionary<string, object> data, string[] permissions = null)
 		{
-			var request = await _client.CreatePatchRequest(BuildUrl(databaseId, collectionId, documentId), data);
+			var permissionsJson = GetPermissions(permissions);
+
+			var request = await _client.CreatePatchRequest(BuildUrl(databaseId, collectionId, documentId),
+				Request.UpdateObject(Request.FormToJson(data), permissionsJson));
+
+			return new DatabaseResponse<T>(request.GetText(), request.Result, request.Error);
+		}
+
+		/// <summary>
+		///     Update a document by its unique ID. Using the patch method you can pass only specific fields that will get updated
+		/// </summary>
+		/// <see href="https://appwrite.io/docs/client/databases?sdk=web-default#databasesUpdateDocument">Appwrite Documentation</see>
+		/// <include file="../comments.xml" path="Appwrite/CommonParams/*" />
+		/// <include file="../comments.xml" path="Appwrite/DocumentParam/*" />
+		public async Task<DatabaseResponse<T>> UpdateDocument<T>(string databaseId, string collectionId, string documentId,
+			KeyValuePair<string, object>[] data, string[] permissions = null)
+		{
+			var permissionsJson = GetPermissions(permissions);
+
+			var request = await _client.CreatePatchRequest(BuildUrl(databaseId, collectionId, documentId),
+				Request.UpdateObject(Request.KeyValueToJson(data), permissionsJson));
+
+			return new DatabaseResponse<T>(request.GetText(), request.Result, request.Error);
+		}
+
+		/// <summary>
+		///     Update a document by its unique ID. Using the patch method you can pass only specific fields that will get updated
+		/// </summary>
+		/// <see href="https://appwrite.io/docs/client/databases?sdk=web-default#databasesUpdateDocument">Appwrite Documentation</see>
+		/// <include file="../comments.xml" path="Appwrite/CommonParams/*" />
+		/// <include file="../comments.xml" path="Appwrite/DocumentParam/*" />
+		public async Task<DatabaseResponse<T>> UpdateDocument<T>(string databaseId, string collectionId, string documentId,
+			object data, string[] permissions = null)
+		{
+			var permissionsJson = GetPermissions(permissions);
+
+			var request = await _client.CreatePatchRequest(BuildUrl(databaseId, collectionId, documentId),
+				Request.UpdateObject(Request.ObjectToJson(data), permissionsJson));
 
 			return new DatabaseResponse<T>(request.GetText(), request.Result, request.Error);
 		}
@@ -80,10 +116,13 @@ namespace AppwriteSDK.Database
 		/// <see href="https://appwrite.io/docs/client/databases?sdk=web-default#databasesCreateDocument">Appwrite Documentation</see>
 		/// <include file="../comments.xml" path="Appwrite/CommonParams/*" />
 		public async Task<DatabaseResponse<T>> CreateDocument<T>(string databaseId, string collectionId, string documentId,
-			T data)
+			T data, string[] permissions = null)
 		{
 			var jsonData = JsonUtility.ToJson(data);
-			var request = await _client.CreatePostRequest(BuildUrl(databaseId, collectionId), Request.CreateObject(documentId, jsonData));
+			var permissionsJson = GetPermissions(permissions);
+
+			var request = await _client.CreatePostRequest(BuildUrl(databaseId, collectionId),
+				Request.CreateObject(documentId, jsonData, permissionsJson));
 
 			return new DatabaseResponse<T>(request.GetText(), request.Result, request.Error);
 		}
@@ -93,6 +132,14 @@ namespace AppwriteSDK.Database
 			var request = await _client.CreateDeleteRequest(BuildUrl(databaseId, collectionId, documentId));
 
 			return new BaseResponse(request.GetText(), request.Result, request.Error);
+		}
+
+		private static string GetPermissions(string[] permissions)
+		{
+			return permissions == null
+				? "[]"
+				: permissions.Aggregate("[", (current, permission) => current + $"\"{permission.Replace("\"", "\\\"")}\",").TrimEnd(',') +
+				  "]";
 		}
 
 		public class DatabaseResponseList<T> : BaseResponse

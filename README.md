@@ -83,14 +83,11 @@ Appwrite features.
     - [ ] Update Membership Roles
     - [ ] Update Team Membership Status
     - [ ] Delete Team Membership
-- [ ] Database
+- [x] Database
     - [x] Create Document
-      - Partially implemented, does not allow changing permissions
     - [x] List Documents
-        - Partially implemented, does not support filters
     - [x] Get Document
     - [x] Update Document
-        - Partially implemented, does not allow changing permissions
     - [x] Delete Document
 - [ ] Storage
     - [ ] Create File

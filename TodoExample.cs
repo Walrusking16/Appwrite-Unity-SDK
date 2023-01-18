@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using AppwriteSDK.Database;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -113,8 +112,10 @@ namespace AppwriteSDK.Example
 			document.rootVisualElement.Q<VisualElement>(todo._id).EnableInClassList("active", evt.newValue);
 
 			// Update the todo item on the server
-			var form = new Dictionary<string, object> { { "completed", evt.newValue } };
-			var res = await client.Database.UpdateDocument<Todo>("game", "items", todo._id, form);
+			var res = await client.Database.UpdateDocument<Todo>("game", "items", todo._id, new
+			{
+				completed = evt.newValue
+			});
 
 			Debug.Log(res.Success ? res.Data.completed : res.Status.message);
 		}
