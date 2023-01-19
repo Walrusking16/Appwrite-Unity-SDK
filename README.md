@@ -3,6 +3,9 @@
 The Appwrite Unity SDK makes it easy to integrate your Unity app with the Appwrite API to start interacting with all
 Appwrite features.
 
+> **Note**
+> Community made SDK, not affaliated with Appwrite
+
 > **Warning**
 > This SDK is still in beta and is not production ready. Please use with caution.
 
