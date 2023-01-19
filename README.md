@@ -1,4 +1,4 @@
-﻿# Appwrite Unity SDK
+![Appwrite Unity SDK](https://assetstorev1-prd-cdn.unity3d.com/key-image/1bae5c90-ecaf-4390-b55e-bcb4a84006b1.jpg)
 
 The Appwrite Unity SDK makes it easy to integrate your Unity app with the Appwrite API to start interacting with all
 Appwrite features.
@@ -30,13 +30,14 @@ Appwrite features.
 
 1. Open your project in Unity
 2. Open the Asset Store (Window > Asset Store)
-3. Search for "Appwrite"
+3. Search for "Appwrite Unity SDK"
 4. Click "Import"
 5. You're done!
 
 ### Initialize the SDK
 
 ```csharp
+var client = new AppwriteSDK.Client("endpoint", "projectid");
 ```
 
 ### Planned Features
