@@ -1,7 +1,7 @@
 ﻿{
-  "name": "com.walrusking.appwritesdk",
+  "name": "com.endlessinteractive.appwritesdk",
   "displayName": "AppwriteSDK",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "unity": "2021.3",
   "description": "Appwrite SDK for Unity",
   "license": "MIT",
@@ -10,7 +10,7 @@
     "Utils"
   ],
   "author": {
-    "name": "Walrusking",
-    "url": "https://walrushq.com"
+    "name": "Endless Interactive",
+    "url": "https://endless-interactive.com"
   }
 }

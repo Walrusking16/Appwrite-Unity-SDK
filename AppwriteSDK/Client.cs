@@ -47,7 +47,7 @@ namespace AppwriteSDK
 		/// <summary>
 		///     Current version of the SDK
 		/// </summary>
-		public string Version => "0.1.1";
+		public string Version => "0.1.2";
 
 		/// <summary>
 		///     Creates a standard GET request
